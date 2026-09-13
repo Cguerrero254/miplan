@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#1B4FD8">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Mi Plan 2026</title>
+<style>
+:root{
+  --bg:#F7F8FA;--surface:#fff;--surface2:#F0F2F5;
+  --border:#E4E7EC;--text:#111827;--text2:#4B5563;--text3:#9CA3AF;
+  --accent:#1B4FD8;--accent-l:#EEF2FF;
+  --green:#15803D;--green-l:#DCFCE7;
+  --red:#B91C1C;--red-l:#FEE2E2;
+  --orange:#C2410C;--orange-l:#FFEDD5;
+  --yellow:#92400E;--yellow-l:#FEF3C7;
+  --purple:#6D28D9;--purple-l:#EDE9FE;
+  --teal:#0F766E;--teal-l:#CCFBF1;
+  --r:10px;--nav-h:60px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--text);font-size:15px;line-height:1.5}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+input,textarea,select{font-family:inherit;font-size:15px}
+
+/* ── LAYOUT ── */
+.app{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.topbar{background:var(--accent);color:#fff;padding:12px 16px 10px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;padding-top:max(12px,env(safe-area-inset-top))}
+.topbar h1{font-size:16px;font-weight:700;letter-spacing:-.2px}
+.topbar-sub{font-size:11px;opacity:.75;margin-top:1px}
+.topbar-right{display:flex;gap:6px}
+.icon-btn{width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,.15);color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+
+/* ── SCROLLABLE CONTENT ── */
+.content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:calc(var(--nav-h) + 8px)}
+.page{display:none;padding:14px}
+.page.active{display:block}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav{height:var(--nav-h);background:var(--surface);border-top:1px solid var(--border);display:flex;align-items:stretch;flex-shrink:0;padding-bottom:env(safe-area-inset-bottom)}
+.bn-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--text3);font-size:10px;font-weight:500;padding:6px 2px;position:relative;transition:color .15s}
+.bn-item.active{color:var(--accent)}
+.bn-item .bn-icon{font-size:20px;line-height:1}
+.bn-item.active::after{content:'';position:absolute;top:0;left:20%;right:20%;height:2px;background:var(--accent);border-radius:0 0 2px 2px}
+
+/* ── DRAWER (submenú) ── */
+.drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100;display:none;opacity:0;transition:opacity .2s}
+.drawer-overlay.open{display:block;opacity:1}
+.drawer{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-radius:18px 18px 0 0;z-index:101;transform:translateY(100%);transition:transform .25s cubic-bezier(.4,0,.2,1);padding-bottom:env(safe-area-inset-bottom)}
+.drawer.open{transform:translateY(0)}
+.drawer-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:10px auto 14px}
+.drawer-title{font-size:13px;font-weight:600;color:var(--text3);padding:0 16px 10px;text-transform:uppercase;letter-spacing:.5px}
+.drawer-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 16px 16px}
+.drawer-item{background:var(--surface2);border-radius:var(--r);padding:12px;display:flex;flex-direction:column;gap:4px;align-items:flex-start}
+.drawer-item .di-icon{font-size:20px}
+.drawer-item .di-label{font-size:13px;font-weight:600;color:var(--text)}
+.drawer-item .di-sub{font-size:11px;color:var(--text3)}
+
+/* ── CARDS ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:12px}
+.card-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.page-title{font-size:19px;font-weight:700;letter-spacing:-.3px;margin-bottom:2px}
+.page-sub{font-size:12px;color:var(--text3);margin-bottom:14px}
+
+/* ── METRICS ── */
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px}
+.metric-label{font-size:10px;color:var(--text3);font-weight:500;margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px}
+.metric-value{font-size:20px;font-weight:700;line-height:1.1}
+.mv-g{color:var(--green)}.mv-r{color:var(--red)}.mv-b{color:var(--accent)}.mv-o{color:var(--orange)}.mv-p{color:var(--purple)}
+
+/* ── ALERTS ── */
+.alert{border-radius:var(--r);padding:11px 13px;font-size:13px;margin-bottom:12px;border-left:3px solid;line-height:1.55}
+.al-blue{background:var(--accent-l);color:#1e3a8a;border-color:var(--accent)}
+.al-green{background:var(--green-l);color:#14532d;border-color:var(--green)}
+.al-red{background:var(--red-l);color:#7f1d1d;border-color:var(--red)}
+.al-yellow{background:var(--yellow-l);color:#78350f;border-color:#F59E0B}
+.al-orange{background:var(--orange-l);color:#7c2d12;border-color:var(--orange)}
+.al-purple{background:var(--purple-l);color:#4c1d95;border-color:var(--purple)}
+
+/* ── BADGE ── */
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
+.bg{background:var(--green-l);color:#14532d}.br{background:var(--red-l);color:#7f1d1d}
+.bo{background:var(--orange-l);color:#7c2d12}.by{background:var(--yellow-l);color:#78350f}
+.bb{background:var(--accent-l);color:#1e3a8a}.bp{background:var(--purple-l);color:#4c1d95}
+.bt{background:var(--teal-l);color:#134e4a}.bgr{background:var(--surface2);color:var(--text2)}
+
+/* ── CHECK ITEMS ── */
+.check-item{display:flex;align-items:flex-start;gap:12px;padding:11px 0;border-bottom:1px solid var(--surface2)}
+.check-item:last-child{border-bottom:none}
+.check-item input[type=checkbox]{width:20px;height:20px;accent-color:var(--green);cursor:pointer;flex-shrink:0;margin-top:1px}
+.check-item label{cursor:pointer;flex:1;font-size:14px;line-height:1.45}
+.check-item.done label{text-decoration:line-through;color:var(--text3)}
+.check-sub{font-size:12px;color:var(--text3);display:block;margin-top:2px}
+
+/* ── TIMELINE ── */
+.tl{padding-left:22px;position:relative}
+.tl::before{content:'';position:absolute;left:7px;top:8px;bottom:8px;width:2px;background:var(--border)}
+.tl-item{position:relative;margin-bottom:10px}
+.tl-dot{position:absolute;left:-19px;top:13px;width:10px;height:10px;border-radius:50%;border:2px solid var(--surface)}
+.tl-block{border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;background:var(--surface)}
+.tl-time{font-size:11px;font-weight:600;color:var(--text3);margin-bottom:3px}
+.tl-title{font-size:13px;font-weight:600}
+.tl-desc{font-size:12px;color:var(--text2);margin-top:2px;line-height:1.4}
+
+/* ── TABLE ── */
+.scroll-table{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;min-width:320px}
+th{padding:7px 8px;font-size:11px;font-weight:600;color:var(--text3);border-bottom:1px solid var(--border);text-align:left;white-space:nowrap}
+td{padding:9px 8px;border-bottom:1px solid var(--surface2);font-size:13px;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+
+/* ── MONEY ROW ── */
+.money-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--surface2);font-size:14px}
+.money-row:last-child{border-bottom:none}
+.money-row.total-row{font-weight:700;border-top:1px solid var(--border-strong);padding-top:11px;margin-top:4px}
+.money-row input{width:110px;text-align:right;padding:6px 10px;border:1px solid var(--border);border-radius:7px;font-size:14px;background:var(--accent-l);color:var(--accent);font-weight:600}
+
+/* ── SALDO ── */
+.saldo{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-radius:var(--r);border:2px solid;margin-top:12px}
+.saldo.pos{background:var(--green-l);border-color:#86efac}
+.saldo.neg{background:var(--red-l);border-color:#fca5a5}
+.saldo-label{font-weight:600;font-size:14px}
+.saldo-val{font-size:24px;font-weight:700}
+.saldo.pos .saldo-label,.saldo.pos .saldo-val{color:var(--green)}
+.saldo.neg .saldo-label,.saldo.neg .saldo-val{color:var(--red)}
+
+/* ── MONTH CARDS ── */
+.month-scroll{display:flex;gap:10px;overflow-x:auto;padding-bottom:8px;-webkit-overflow-scrolling:touch}
+.month-scroll::-webkit-scrollbar{display:none}
+.mc{flex-shrink:0;width:130px;border:1px solid var(--border);border-radius:var(--r);padding:11px 13px;background:var(--surface)}
+.mc-name{font-size:10px;font-weight:600;color:var(--text3);margin-bottom:5px}
+.mc-val{font-size:18px;font-weight:700;margin-bottom:3px}
+.mc-det{font-size:10px;color:var(--text3)}
+.mc-bar{height:4px;background:var(--surface2);border-radius:2px;margin-top:7px;overflow:hidden}
+.mc-fill{height:100%;border-radius:2px}
+
+/* ── WEEK SCROLL ── */
+.week-scroll{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;-webkit-overflow-scrolling:touch}
+.week-scroll::-webkit-scrollbar{display:none}
+.day-col{flex-shrink:0;width:115px;border-radius:var(--r);overflow:hidden;border:1px solid var(--border)}
+.day-head{padding:7px 6px;text-align:center;font-size:11px;font-weight:700;background:var(--surface2);color:var(--text2)}
+.day-head.sp{background:var(--accent);color:#fff}
+.db{padding:5px 7px;font-size:10px;border-bottom:1px solid var(--surface2)}
+.db:last-child{border-bottom:none}
+.db-t{color:var(--text3);font-size:9px}
+.db-n{font-weight:600;color:var(--text)}
+.bl-sl{background:#EEF2FF}.bl-ex{background:#FFF1F2}.bl-mn{background:#F0FDF4}
+.bl-wk{background:#EFF6FF}.bl-tr{background:#F9FAFB}.bl-st{background:#FAF5FF}
+.bl-rs{background:#F0FDFA}.bl-fr{background:#FFFBEB}.bl-em{background:#FDF4FF}
+
+/* ── PROGRESS ── */
+.prog-wrap{margin-bottom:10px}
+.prog-label{display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:4px}
+.prog-bar{height:7px;background:var(--surface2);border-radius:4px;overflow:hidden}
+.prog-fill{height:100%;border-radius:4px;transition:width .4s}
+
+/* ── TABS ── */
+.tab-row{display:flex;gap:0;margin-bottom:14px;border-bottom:2px solid var(--border);overflow-x:auto}
+.tab-row::-webkit-scrollbar{display:none}
+.tab-btn{padding:9px 14px;border:none;background:none;color:var(--text3);font-size:13px;font-weight:500;white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-2px}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:700}
+.tab-pane{display:none}.tab-pane.active{display:block}
+
+/* ── SETUP PC CARD ── */
+.pc-item-row{display:flex;justify-content:space-between;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--surface2);gap:8px}
+.pc-item-row:last-child{border-bottom:none}
+.pc-item-info{flex:1}
+.pc-item-name{font-size:13px;font-weight:600}
+.pc-item-model{font-size:11px;color:var(--text3);margin-top:2px}
+.pc-item-price{font-size:12px;color:var(--accent);font-weight:600;margin-top:2px}
+.pc-item-check{flex-shrink:0;width:22px;height:22px;accent-color:var(--green);cursor:pointer;margin-top:2px}
+
+/* ── ETAPA CHIP ── */
+.etapa-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;margin-bottom:10px}
+
+/* ── IDEA TEXTAREA ── */
+textarea.idea{width:100%;min-height:90px;padding:10px;border:1px solid var(--border);border-radius:var(--r);font-size:14px;resize:vertical;background:var(--surface2);color:var(--text)}
+textarea.idea:focus{outline:2px solid var(--accent)}
+
+/* ── EXPORT AREA ── */
+textarea.exp-area{width:100%;min-height:70px;padding:10px;border:1px solid var(--border);border-radius:var(--r);font-size:12px;font-family:monospace;background:var(--bg);color:var(--text3);resize:vertical;margin-top:8px}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:72px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:9px 18px;border-radius:20px;font-size:13px;z-index:999;opacity:0;pointer-events:none;transition:opacity .25s;white-space:nowrap}
+.toast.show{opacity:1}
+
+/* ── STITLE ── */
+.stitle{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin:14px 0 8px}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div>
+    <div class="topbar-right" style="gap:4px;margin-bottom:2px;display:flex">
+      <div style="font-size:16px;font-weight:700">📋 Mi Plan 2026–2027</div>
+    </div>
+    <div class="topbar-sub">Carlos · Cusco · Ingreso S/ 2,100/mes</div>
+  </div>
+  <div class="topbar-right">
+    <button class="icon-btn" onclick="openPage('backup')" title="Respaldo">💾</button>
+    <button class="icon-btn" onclick="exportar()" title="Exportar">⬆️</button>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+<!-- ══ DASHBOARD ══ -->
+<div id="dashboard" class="page active">
+  <div class="page-title">Dashboard</div>
+  <div class="page-sub">Todo de un vistazo</div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Ingreso</div><div class="metric-value mv-g">S/ 2,100</div></div>
+    <div class="metric"><div class="metric-label">Gastos fijos</div><div class="metric-value mv-r">S/ 850</div></div>
+    <div class="metric"><div class="metric-label">Deudas oct–nov</div><div class="metric-value mv-r">S/ 1,588</div></div>
+    <div class="metric"><div class="metric-label">Libre ene 2027</div><div class="metric-value mv-g">S/ 384</div></div>
+  </div>
+  <div class="alert al-red">⚠️ <strong>Oct–Nov en rojo.</strong> Usa la tarjeta de alimentos para liberar efectivo.</div>
+  <div class="alert al-blue">📄 Constancia de egresado iniciada. Entrega: <strong>~22 oct 2026</strong>. Avanza la tesina ya.</div>
+  <div class="alert al-green">📈 Desde <strong>sep 2027</strong> quedas libre de deudas.</div>
+  <div class="card">
+    <div class="card-title">Flujo mes a mes</div>
+    <div class="month-scroll" id="mg"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Progreso de metas</div>
+    <div id="dash-metas"></div>
+    <div style="font-size:12px;color:var(--text3);margin-top:8px" id="dash-meta-pct">Cargando...</div>
+  </div>
+</div>
+
+<!-- ══ HORARIO ══ -->
+<div id="horario" class="page">
+  <div class="page-title">Horario semanal</div>
+  <div class="page-sub">Desliza para ver los 7 días</div>
+  <div class="alert al-blue">😴 Sueño protegido: <strong>10 pm – 5 am = 7 h</strong> diarias.</div>
+  <div class="card" style="padding:12px 10px">
+    <div class="week-scroll">
+      <div class="day-col">
+        <div class="day-head">LUN</div>
+        <div class="db bl-sl"><div class="db-t">5:00</div><div class="db-n">Despertar</div></div>
+        <div class="db bl-ex"><div class="db-t">5:10–5:40</div><div class="db-n">💪 Fuerza</div></div>
+        <div class="db bl-mn"><div class="db-t">5:40–6:00</div><div class="db-n">Ducha+desayuno</div></div>
+        <div class="db bl-tr"><div class="db-t">6:00–6:30</div><div class="db-n">🚌 Viaje</div></div>
+        <div class="db bl-wk"><div class="db-t">7:30–18:00</div><div class="db-n">💼 Trabajo</div></div>
+        <div class="db bl-tr"><div class="db-t">18:00–19:30</div><div class="db-n">🚌 Regreso</div></div>
+        <div class="db bl-st"><div class="db-t">19:45–21:00</div><div class="db-n">📚 Tesina</div></div>
+        <div class="db bl-st"><div class="db-t">21:00–21:30</div><div class="db-n">🇺🇸 Inglés</div></div>
+        <div class="db bl-sl"><div class="db-t">22:00</div><div class="db-n">😴 Dormir</div></div>
+      </div>
+      <div class="day-col">
+        <div class="day-head">MAR</div>
+        <div class="db bl-sl"><div class="db-t">5:00</div><div class="db-n">Despertar</div></div>
+        <div class="db bl-ex"><div class="db-t">5:10–5:40</div><div class="db-n">💪 HIIT</div></div>
+        <div class="db bl-mn"><div class="db-t">5:40–6:00</div><div class="db-n">Ducha+desayuno</div></div>
+        <div class="db bl-tr"><div class="db-t">6:00–6:30</div><div class="db-n">🚌 Viaje</div></div>
+        <div class="db bl-wk"><div class="db-t">7:30–18:00</div><div class="db-n">💼 Trabajo</div></div>
+        <div class="db bl-tr"><div class="db-t">18:00–19:30</div><div class="db-n">🚌 Regreso</div></div>
+        <div class="db bl-st"><div class="db-t">19:45–21:00</div><div class="db-n">📖 Curso</div></div>
+        <div class="db bl-em"><div class="db-t">21:00–21:30</div><div class="db-n">🚀 Emprender</div></div>
+        <div class="db bl-sl"><div class="db-t">22:00</div><div class="db-n">😴 Dormir</div></div>
+      </div>
+      <div class="day-col">
+        <div class="day-head sp">MIÉ ⚽</div>
+        <div class="db bl-sl"><div class="db-t">5:00</div><div class="db-n">Despertar</div></div>
+        <div class="db bl-mn"><div class="db-t">5:00–6:00</div><div class="db-n">Stretching+mañana</div></div>
+        <div class="db bl-tr"><div class="db-t">6:00–6:30</div><div class="db-n">🚌 Viaje</div></div>
+        <div class="db bl-wk"><div class="db-t">7:30–18:00</div><div class="db-n">💼 Trabajo</div></div>
+        <div class="db bl-ex"><div class="db-t">18:00–22:00</div><div class="db-n">⚽ Fútbol</div></div>
+        <div class="db bl-sl"><div class="db-t">22:30</div><div class="db-n">😴 Dormir</div></div>
+      </div>
+      <div class="day-col">
+        <div class="day-head">JUE</div>
+        <div class="db bl-sl"><div class="db-t">5:00</div><div class="db-n">Despertar</div></div>
+        <div class="db bl-ex"><div class="db-t">5:10–5:40</div><div class="db-n">💪 Fuerza</div></div>
+        <div class="db bl-mn"><div class="db-t">5:40–6:00</div><div class="db-n">Ducha+desayuno</div></div>
+        <div class="db bl-tr"><div class="db-t">6:00–6:30</div><div class="db-n">🚌 Viaje</div></div>
+        <div class="db bl-wk"><div class="db-t">7:30–18:00</div><div class="db-n">💼 Trabajo</div></div>
+        <div class="db bl-tr"><div class="db-t">18:00–19:30</div><div class="db-n">🚌 Regreso</div></div>
+        <div class="db bl-st"><div class="db-t">19:45–21:00</div><div class="db-n">📚 Tesina</div></div>
+        <div class="db bl-st"><div class="db-t">21:00–21:30</div><div class="db-n">🇺🇸 Inglés</div></div>
+        <div class="db bl-sl"><div class="db-t">22:00</div><div class="db-n">😴 Dormir</div></div>
+      </div>
+      <div class="day-col">
+        <div class="day-head">VIE</div>
+        <div class="db bl-sl"><div class="db-t">5:00</div><div class="db-n">Despertar</div></div>
+        <div class="db bl-mn"><div class="db-t">5:00–6:00</div><div class="db-n">Stretching+mañana</div></div>
+        <div class="db bl-tr"><div class="db-t">6:00–6:30</div><div class="db-n">🚌 Viaje</div></div>
+        <div class="db bl-wk"><div class="db-t">7:30–18:00</div><div class="db-n">💼 Trabajo</div></div>
+        <div class="db bl-tr"><div class="db-t">18:00–19:30</div><div class="db-n">🚌 Regreso</div></div>
+        <div class="db bl-st"><div class="db-t">19:45–21:00</div><div class="db-n">📖 Curso</div></div>
+        <div class="db bl-em"><div class="db-t">21:00–21:30</div><div class="db-n">🚀 Emprender</div></div>
+        <div class="db bl-sl"><div class="db-t">22:00</div><div class="db-n">😴 Dormir</div></div>
+      </div>
+      <div class="day-col">
+        <div class="day-head">SÁB</div>
+        <div class="db bl-sl"><div class="db-t">6:00</div><div class="db-n">😴 +1h extra</div></div>
+        <div class="db bl-st"><div class="db-t">6:30–8:00</div><div class="db-n">📚 Tesina</div></div>
+        <div class="db bl-ex"><div class="db-t">8:00–8:45</div><div class="db-n">💪 45 min</div></div>
+        <div class="db bl-rs"><div class="db-t">9:00–12:00</div><div class="db-n">🧹 Limpieza</div></div>
+        <div class="db bl-fr"><div class="db-t">12:00–22:00</div><div class="db-n">❤️ Enamorada</div></div>
+        <div class="db bl-sl"><div class="db-t">22:30</div><div class="db-n">😴 Dormir</div></div>
+      </div>
+      <div class="day-col">
+        <div class="day-head sp">DOM 🌟</div>
+        <div class="db bl-sl"><div class="db-t">7:00</div><div class="db-n">😴 +2h extra</div></div>
+        <div class="db bl-st"><div class="db-t">7:30–9:30</div><div class="db-n">📚 Tesina (2h)</div></div>
+        <div class="db bl-st"><div class="db-t">9:30–11:00</div><div class="db-n">📖 Curso</div></div>
+        <div class="db bl-em"><div class="db-t">11:00–12:30</div><div class="db-n">🚀 Emprender</div></div>
+        <div class="db bl-rs"><div class="db-t">12:30–14:00</div><div class="db-n">Almuerzo/siesta</div></div>
+        <div class="db bl-st"><div class="db-t">14:00–15:00</div><div class="db-n">🇺🇸 Inglés</div></div>
+        <div class="db bl-ex"><div class="db-t">15:00–16:00</div><div class="db-n">💪 1h completo</div></div>
+        <div class="db bl-fr"><div class="db-t">16:00–21:00</div><div class="db-n">🎮 Libre total</div></div>
+        <div class="db bl-sl"><div class="db-t">22:00</div><div class="db-n">😴 Dormir</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Distribución semanal</div>
+    <div class="prog-wrap"><div class="prog-label"><span>😴 Sueño</span><span>49 h</span></div><div class="prog-bar"><div class="prog-fill" style="width:29%;background:#818CF8"></div></div></div>
+    <div class="prog-wrap"><div class="prog-label"><span>💼 Trabajo + viajes</span><span>57.5 h</span></div><div class="prog-bar"><div class="prog-fill" style="width:34%;background:#3B82F6"></div></div></div>
+    <div class="prog-wrap"><div class="prog-label"><span>📚 Estudio</span><span>14 h</span></div><div class="prog-bar"><div class="prog-fill" style="width:8%;background:#8B5CF6"></div></div></div>
+    <div class="prog-wrap"><div class="prog-label"><span>💪 Ejercicio</span><span>5.5 h</span></div><div class="prog-bar"><div class="prog-fill" style="width:3%;background:#EF4444"></div></div></div>
+    <div class="prog-wrap"><div class="prog-label"><span>🚀 Emprendimiento</span><span>3 h</span></div><div class="prog-bar"><div class="prog-fill" style="width:2%;background:#A855F7"></div></div></div>
+    <div class="prog-wrap"><div class="prog-label"><span>❤️ Vida personal</span><span>35 h</span></div><div class="prog-bar"><div class="prog-fill" style="width:21%;background:#14B8A6"></div></div></div>
+  </div>
+</div>
+
+<!-- ══ FINANZAS ══ -->
+<div id="finanzas" class="page">
+  <div class="page-title">Finanzas</div>
+  <div class="page-sub">Deudas · Presupuesto · Compras</div>
+  <div class="tab-row">
+    <button class="tab-btn active" onclick="tab(this,'fin','fin-deudas')">💳 Deudas</button>
+    <button class="tab-btn" onclick="tab(this,'fin','fin-presup')">💰 Presupuesto</button>
+    <button class="tab-btn" onclick="tab(this,'fin','fin-compras')">🛒 Compras</button>
+  </div>
+
+  <!-- DEUDAS -->
+  <div id="fin-deudas" class="tab-pane active">
+    <div class="metrics">
+      <div class="metric"><div class="metric-label">Total deuda</div><div class="metric-value mv-r">S/ 9,533</div></div>
+      <div class="metric"><div class="metric-label">Pagado</div><div class="metric-value mv-g" id="d-pagado">S/ 0</div></div>
+      <div class="metric"><div class="metric-label">Cuotas ok</div><div class="metric-value mv-g" id="d-cuotas">0</div></div>
+      <div class="metric"><div class="metric-label">Pendiente</div><div class="metric-value mv-r" id="d-pend">S/ 9,533</div></div>
+    </div>
+    <div class="alert al-yellow">💰 <strong>CTS (nov)</strong> y <strong>Gratificación (dic)</strong> ~S/ 1,800 c/u → pedir <strong>amortización de capital</strong> a tu entidad.</div>
+    <div id="deudas-content"></div>
+  </div>
+
+  <!-- PRESUPUESTO -->
+  <div id="fin-presup" class="tab-pane">
+    <div class="card"><div class="card-title">💵 Ingresos</div>
+      <div class="money-row"><span>Sueldo neto</span><input id="p-sueldo" type="number" value="1800" oninput="calcPresup()"></div>
+      <div class="money-row"><span>Tarjeta alimentos</span><input id="p-tarjeta" type="number" value="300" oninput="calcPresup()"></div>
+      <div class="money-row"><span>Extras</span><input id="p-extra" type="number" value="0" oninput="calcPresup()"></div>
+      <div class="money-row total-row"><span>Total ingresos</span><span id="p-ti" style="color:var(--green);font-weight:700">S/ 2,100</span></div>
+    </div>
+    <div class="card"><div class="card-title">🏠 Gastos fijos</div>
+      <div class="money-row"><span>Comida / mercado</span><input id="p-comida" type="number" value="300" oninput="calcPresup()"></div>
+      <div class="money-row"><span>Pasajes</span><input id="p-pasajes" type="number" value="300" oninput="calcPresup()"></div>
+      <div class="money-row"><span>Luz</span><input id="p-luz" type="number" value="170" oninput="calcPresup()"></div>
+      <div class="money-row"><span>Gas</span><input id="p-gas" type="number" value="40" oninput="calcPresup()"></div>
+      <div class="money-row"><span>Plan celular</span><input id="p-plan" type="number" value="40" oninput="calcPresup()"></div>
+      <div class="money-row"><span>Otros</span><input id="p-otros" type="number" value="0" oninput="calcPresup()"></div>
+      <div class="money-row total-row"><span>Total gastos</span><span id="p-tg" style="color:var(--red);font-weight:700">S/ 850</span></div>
+    </div>
+    <div class="card"><div class="card-title">💳 Deudas del mes</div>
+      <div class="money-row"><span>Curso planificación</span><input id="p-curso" type="number" value="472" oninput="calcPresup()"></div>
+      <div class="money-row"><span>Junta</span><input id="p-junta" type="number" value="250" oninput="calcPresup()"></div>
+      <div class="money-row"><span>Celular (cuotas)</span><input id="p-cel" type="number" value="546" oninput="calcPresup()"></div>
+      <div class="money-row"><span>Caja Cusco</span><input id="p-caja" type="number" value="320" oninput="calcPresup()"></div>
+      <div class="money-row total-row"><span>Total deudas</span><span id="p-td" style="color:var(--red);font-weight:700">S/ 1,588</span></div>
+    </div>
+    <div class="saldo neg" id="saldo-box">
+      <span class="saldo-label">Saldo libre</span>
+      <span class="saldo-val" id="saldo-val">S/ -338</span>
+    </div>
+  </div>
+
+  <!-- COMPRAS -->
+  <div id="fin-compras" class="tab-pane">
+    <div class="metrics">
+      <div class="metric"><div class="metric-label">Total</div><div class="metric-value mv-b">17</div></div>
+      <div class="metric"><div class="metric-label">Comprados</div><div class="metric-value mv-g" id="c-done">0</div></div>
+    </div>
+    <div id="compras-content"></div>
+  </div>
+</div>
+
+<!-- ══ METAS ══ -->
+<div id="metas" class="page">
+  <div class="page-title">Metas</div>
+  <div class="page-sub">Académico · Cursos · Salud · Brevetes</div>
+  <div class="tab-row">
+    <button class="tab-btn active" onclick="tab(this,'met','met-acad')">🎓 Académico</button>
+    <button class="tab-btn" onclick="tab(this,'met','met-cursos')">💻 Cursos</button>
+    <button class="tab-btn" onclick="tab(this,'met','met-salud')">❤️ Salud</button>
+    <button class="tab-btn" onclick="tab(this,'met','met-brev')">🚗 Brevetes</button>
+    <button class="tab-btn" onclick="tab(this,'met','met-empr')">🚀 Emprender</button>
+  </div>
+
+  <div id="met-acad" class="tab-pane active">
+    <div class="alert al-blue">📄 Constancia iniciada 09/09/2026 · Entrega ~22 oct 2026. <strong>Avanza la tesina ya.</strong></div>
+    <div class="card"><div class="card-title">Ruta académica</div>
+    <div class="tl">
+      <div class="tl-item"><div class="tl-dot" style="background:var(--green)"></div><div class="tl-block" style="background:var(--green-l)"><div class="tl-time">Hoy ✅</div><div class="tl-title">Constancia de egresado iniciada</div></div></div>
+      <div class="tl-item"><div class="tl-dot" style="background:var(--accent)"></div><div class="tl-block"><div class="tl-time">Sep–Oct 2026</div><div class="tl-title">📝 Avanzar tesina en paralelo</div><div class="tl-desc">Estructura · marco teórico · metodología</div></div></div>
+      <div class="tl-item"><div class="tl-dot" style="background:var(--orange)"></div><div class="tl-block"><div class="tl-time">~22 oct 2026</div><div class="tl-title">📄 Recibir constancia de egresado</div></div></div>
+      <div class="tl-item"><div class="tl-dot" style="background:var(--purple)"></div><div class="tl-block"><div class="tl-time">Oct–Dic 2026</div><div class="tl-title">📚 Terminar y presentar tesina</div></div></div>
+      <div class="tl-item"><div class="tl-dot" style="background:var(--teal)"></div><div class="tl-block"><div class="tl-time">Ene 2027</div><div class="tl-title">📜 Constancia de bachiller</div></div></div>
+      <div class="tl-item"><div class="tl-dot" style="background:var(--purple)"></div><div class="tl-block"><div class="tl-time">Ene–Jun 2027</div><div class="tl-title">🔬 Tesis de titulación</div></div></div>
+      <div class="tl-item"><div class="tl-dot" style="background:var(--yellow)"></div><div class="tl-block"><div class="tl-time">2027–2028</div><div class="tl-title">🎓 Titulación</div></div></div>
+    </div></div>
+    <div class="card"><div class="card-title">✅ Checklist tesina</div><div id="ch-tesina"></div></div>
+  </div>
+
+  <div id="met-cursos" class="tab-pane">
+    <div class="alert al-yellow">💡 Rota 2 cursos en paralelo. Inglés es diario y constante.</div>
+    <div class="card"><div class="card-title">🇺🇸 Inglés diario</div><div id="ch-ingles"></div></div>
+    <div class="card"><div class="card-title">✅ Cursos técnicos</div><div id="ch-cursos"></div></div>
+  </div>
+
+  <div id="met-salud" class="tab-pane">
+    <div class="alert al-red">⚠️ Riñones y oídos: prioridad. Busca el SIS o posta médica.</div>
+    <div class="card"><div class="card-title">❤️ Checklist salud</div><div id="ch-salud"></div></div>
+    <div class="card"><div class="card-title">🥗 Hábitos alimentarios</div><div id="ch-dieta"></div></div>
+  </div>
+
+  <div id="met-brev" class="tab-pane">
+    <div class="card"><div class="card-title">🚗 Brevete auto</div><div id="ch-brev-auto"></div></div>
+    <div class="card"><div class="card-title">🏍️ Brevete moto</div><div id="ch-brev-moto"></div></div>
+  </div>
+
+  <div id="met-empr" class="tab-pane">
+    <div class="alert al-orange">⚠️ Sin inversión de dinero hasta 2027. Usa el tiempo para validar.</div>
+    <div class="card"><div class="card-title">💡 Ideas de negocio</div><div id="ch-ideas"></div></div>
+    <div class="card"><div class="card-title">📝 Mi idea actual</div>
+      <textarea class="idea" id="idea-txt" placeholder="Describe tu idea: a quién va dirigida, qué problema resuelve..." oninput="saveIdea()"></textarea>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SETUP PC ══ -->
+<div id="setuppc" class="page">
+  <div class="page-title">Setup PC</div>
+  <div class="page-sub">Ingeniero Mecánico-Eléctrico · 3D + Ansys</div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Total estimado</div><div class="metric-value mv-r">S/ 15,190</div></div>
+    <div class="metric"><div class="metric-label">Comprado</div><div class="metric-value mv-g" id="pc-done-val">S/ 0</div></div>
+    <div class="metric"><div class="metric-label">Pendiente</div><div class="metric-value mv-r" id="pc-pend-val">S/ 15,190</div></div>
+    <div class="metric"><div class="metric-label">Ahorro actual</div><div class="metric-value mv-b" id="pc-ahorro-disp">S/ 0</div></div>
+  </div>
+  <div class="alert al-blue">💰 Meta: sep 2027 en adelante. Ahorrando S/ 1,000/mes lo completas en ~15 meses.</div>
+
+  <div class="card">
+    <div class="card-title">💾 Ahorro acumulado</div>
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px">
+      <input id="pc-ahorro" type="number" value="0" min="0" placeholder="S/ 0"
+        style="flex:1;padding:10px;border:1px solid var(--border);border-radius:var(--r);font-size:16px;background:var(--accent-l);color:var(--accent);font-weight:700"
+        oninput="updatePCAhorro()">
+      <span style="font-size:13px;color:var(--text3)">soles</span>
+    </div>
+    <div class="prog-bar" style="height:10px;margin-bottom:6px">
+      <div class="prog-fill" id="pc-prog-fill" style="width:0%;background:var(--green)"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text3)">
+      <span id="pc-prog-pct">0%</span><span id="pc-prog-rest">Faltan S/ 15,190</span>
+    </div>
+  </div>
+
+  <div class="tab-row">
+    <button class="tab-btn active" onclick="tab(this,'pc','pc-torre')">🖥️ PC Torre</button>
+    <button class="tab-btn" onclick="tab(this,'pc','pc-monitor')">🖥 Monitor</button>
+    <button class="tab-btn" onclick="tab(this,'pc','pc-periferico')">⌨️ Periféricos</button>
+  </div>
+
+  <div id="pc-torre" class="tab-pane active">
+    <div class="card" style="padding:12px 14px">
+      <div id="pc-torre-items"></div>
+      <div style="display:flex;justify-content:space-between;padding-top:10px;border-top:1px solid var(--border);margin-top:4px;font-size:13px;font-weight:600">
+        <span>Subtotal</span><span style="color:var(--accent)">S/ 7,060 – 8,410</span>
+      </div>
+    </div>
+  </div>
+  <div id="pc-monitor" class="tab-pane">
+    <div class="card" style="padding:12px 14px"><div id="pc-monitor-items"></div></div>
+  </div>
+  <div id="pc-periferico" class="tab-pane">
+    <div class="card" style="padding:12px 14px">
+      <div id="pc-periferico-items"></div>
+      <div style="display:flex;justify-content:space-between;padding-top:10px;border-top:1px solid var(--border);margin-top:4px;font-size:13px;font-weight:600">
+        <span>Subtotal</span><span style="color:var(--accent)">S/ 2,630 – 3,580</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card"><div class="card-title">📝 Notas del setup</div>
+    <textarea class="idea" id="pc-notas" placeholder="Precios actualizados, tiendas, alternativas..." oninput="savePCNotas()" style="min-height:70px"></textarea>
+  </div>
+</div>
+
+<!-- ══ BACKUP ══ -->
+<div id="backup" class="page">
+  <div class="page-title">Respaldo</div>
+  <div class="page-sub">Exporta e importa tu progreso</div>
+  <div class="card">
+    <div class="card-title">📤 Exportar</div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:12px">Descarga un archivo JSON con todo tu progreso.</p>
+    <button onclick="exportar()" style="width:100%;padding:12px;background:var(--accent);color:#fff;border-radius:var(--r);font-size:14px;font-weight:600;margin-bottom:8px">⬇️ Descargar respaldo .json</button>
+    <button onclick="copiarExport()" style="width:100%;padding:12px;background:var(--surface2);color:var(--text);border-radius:var(--r);font-size:14px;font-weight:600;border:1px solid var(--border)">📋 Copiar al portapapeles</button>
+    <textarea class="exp-area" id="export-area" readonly placeholder="El respaldo aparecerá aquí..."></textarea>
+  </div>
+  <div class="card">
+    <div class="card-title">📥 Importar</div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:10px">Pega aquí el contenido de un respaldo anterior.</p>
+    <textarea class="exp-area" id="import-area" placeholder="Pega el JSON del respaldo aquí..."></textarea>
+    <button onclick="importar()" style="width:100%;padding:12px;background:var(--green);color:#fff;border-radius:var(--r);font-size:14px;font-weight:600;margin-top:8px">✅ Importar y restaurar</button>
+    <button onclick="document.getElementById('import-file').click()" style="width:100%;padding:12px;background:var(--surface2);color:var(--text);border-radius:var(--r);font-size:14px;font-weight:600;border:1px solid var(--border);margin-top:8px">📁 Importar desde archivo</button>
+    <input type="file" id="import-file" accept=".json" style="display:none" onchange="importFile(this)">
+  </div>
+  <div class="card">
+    <div class="card-title" style="color:var(--red)">🗑️ Borrar todo</div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:10px">Elimina todo el progreso guardado. No se puede deshacer.</p>
+    <button onclick="borrarTodo()" style="width:100%;padding:12px;background:var(--red-l);color:var(--red);border-radius:var(--r);font-size:14px;font-weight:600;border:1px solid #fca5a5">Borrar todo</button>
+  </div>
+</div>
+
+</div><!-- end content -->
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="bn-item active" id="bn-dashboard" onclick="openPage('dashboard')">
+    <span class="bn-icon">📊</span><span>Dashboard</span>
+  </button>
+  <button class="bn-item" id="bn-horario" onclick="openPage('horario')">
+    <span class="bn-icon">📅</span><span>Horario</span>
+  </button>
+  <button class="bn-item" id="bn-finanzas" onclick="openPage('finanzas')">
+    <span class="bn-icon">💳</span><span>Finanzas</span>
+  </button>
+  <button class="bn-item" id="bn-metas" onclick="openPage('metas')">
+    <span class="bn-icon">🎯</span><span>Metas</span>
+  </button>
+  <button class="bn-item" id="bn-more" onclick="toggleDrawer()">
+    <span class="bn-icon">⋯</span><span>Más</span>
+  </button>
+</nav>
+
+</div><!-- end app -->
+
+<!-- DRAWER "Más" -->
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-handle"></div>
+  <div class="drawer-title">Más secciones</div>
+  <div class="drawer-grid">
+    <button class="drawer-item" onclick="openPage('setuppc');closeDrawer()">
+      <span class="di-icon">🖥️</span>
+      <span class="di-label">Setup PC</span>
+      <span class="di-sub">Tu meta tecnológica</span>
+    </button>
+    <button class="drawer-item" onclick="openPage('backup');closeDrawer()">
+      <span class="di-icon">💾</span>
+      <span class="di-label">Respaldo</span>
+      <span class="di-sub">Exportar / importar</span>
+    </button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SK='mivida2026';
+function load(){try{return JSON.parse(localStorage.getItem(SK))||{};}catch{return {};}}
+function save(d){try{localStorage.setItem(SK,JSON.stringify(d));}catch(e){showToast('Error: '+e.message);}}
+
+// ── NAV ──
+const pages=['dashboard','horario','finanzas','metas','setuppc','backup'];
+function openPage(id){
+  pages.forEach(p=>{
+    const el=document.getElementById(p); if(el) el.classList.remove('active');
+  });
+  document.querySelectorAll('.bn-item').forEach(b=>b.classList.remove('active'));
+  const el=document.getElementById(id); if(el) el.classList.add('active');
+  const bn=document.getElementById('bn-'+id); if(bn) bn.classList.add('active');
+  document.querySelector('.content').scrollTop=0;
+  if(id==='backup') genExport();
+  if(id==='dashboard') updateDashMetas();
+}
+
+function tab(btn,group,id){
+  const parent=btn.closest('.tab-row').parentElement;
+  parent.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  parent.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  const tp=document.getElementById(id); if(tp) tp.classList.add('active');
+}
+
+// ── DRAWER ──
+function toggleDrawer(){
+  document.getElementById('drawer').classList.toggle('open');
+  document.getElementById('drawer-overlay').classList.toggle('open');
+}
+function closeDrawer(){
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('drawer-overlay').classList.remove('open');
+}
+
+// ── TOAST ──
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+// ── MONTH GRID ──
+const meses=[
+  {n:'Sep 2026',d:1268},{n:'Oct 2026',d:1588},{n:'Nov 2026',d:1588},
+  {n:'Dic 2026',d:1116},{n:'Ene 2027',d:866},{n:'Feb 2027',d:866},
+  {n:'Mar 2027',d:866},{n:'Abr 2027',d:866},{n:'May 2027',d:866},
+  {n:'Jun 2027',d:866},{n:'Jul 2027',d:866},{n:'Ago 2027',d:866},
+  {n:'Sep 2027+',d:320},
+];
+(()=>{
+  const mg=document.getElementById('mg'); if(!mg) return;
+  meses.forEach(m=>{
+    const l=2100-850-m.d;
+    const col=l<0?'#EF4444':l<400?'#F97316':l<700?'#EAB308':'#15803D';
+    const pct=Math.max(0,Math.round(l/2100*100));
+    const mc=document.createElement('div'); mc.className='mc';
+    mc.innerHTML=`<div class="mc-name">${m.n}</div>
+      <div class="mc-val" style="color:${col}">S/${l.toLocaleString('es-PE')}</div>
+      <div class="mc-det">Deudas: S/${m.d.toLocaleString()}</div>
+      <div class="mc-bar"><div class="mc-fill" style="width:${Math.min(Math.max(pct,2),100)}%;background:${col}"></div></div>`;
+    mg.appendChild(mc);
+  });
+})();
+
+// ── CHECKLISTS ──
+function mkChecks(containerId,items,key){
+  const el=document.getElementById(containerId); if(!el) return;
+  const data=load(); const saved=data[key]||{};
+  el.innerHTML='';
+  items.forEach((item,i)=>{
+    const id=`${key}-${i}`;
+    const checked=!!saved[i];
+    const row=document.createElement('div');
+    row.className='check-item'+(checked?' done':'');
+    row.id='r-'+id;
+    row.innerHTML=`<input type="checkbox" id="${id}" ${checked?'checked':''}
+      onchange="toggleCheck('${id}','${key}',${i})">
+      <label for="${id}">${item.t}
+        ${item.b?`<span class="badge ${item.b.c}">${item.b.t}</span>`:''}
+        ${item.s?`<span class="check-sub">${item.s}</span>`:''}
+      </label>`;
+    el.appendChild(row);
+  });
+}
+
+function toggleCheck(id,key,idx){
+  const cb=document.getElementById(id);
+  document.getElementById('r-'+id).classList.toggle('done',cb.checked);
+  const data=load(); if(!data[key]) data[key]={};
+  data[key][idx]=cb.checked; save(data);
+  updateDashMetas();
+}
+
+const allLists={
+  tesina:[
+    {t:'Definir tema de la tesina',b:{c:'br',t:'Urgente'},s:'Consulta con un asesor de tu especialidad'},
+    {t:'Estructura básica (índice tentativo)',s:'Intro · objetivos · marco teórico · metodología · conclusiones'},
+    {t:'Recolectar bibliografía (mín. 10 fuentes)'},
+    {t:'Redactar introducción',b:{c:'bo',t:'Semana 1–2'}},
+    {t:'Redactar marco teórico',b:{c:'bo',t:'Semana 3–5'}},
+    {t:'Redactar metodología'},
+    {t:'Redactar resultados y análisis'},
+    {t:'Redactar conclusiones'},
+    {t:'Revisión con asesor — primera vuelta'},
+    {t:'Correcciones y ajustes finales'},
+    {t:'Presentación y entrega'},
+  ],
+  ingles:[
+    {t:'Duolingo — 1 lección diaria',b:{c:'bg',t:'Gratis'},s:'La racha es lo más importante'},
+    {t:'Podcast en inglés en el viaje al trabajo',s:'BBC Learning English · EnglishPod · TED'},
+    {t:'1 video en YouTube en inglés por semana'},
+    {t:'Serie/película en inglés los domingos',s:'Subtítulos en inglés — inmersión'},
+    {t:'Anki: 5 palabras nuevas al día',b:{c:'bg',t:'Gratis'}},
+    {t:'Diario personal en inglés (3 oraciones/día)'},
+  ],
+  cursos:[
+    {t:'IA — Curso base',b:{c:'bo',t:'Sep–Nov 2026'},s:'Coursera "AI for Everyone" (gratis audit)'},
+    {t:'Power BI — Curso introductorio',b:{c:'bo',t:'Sep–Nov 2026'},s:'Udemy ~S/30–50'},
+    {t:'Power BI — Proyecto personal (dashboard)'},
+    {t:'SolidWorks — Instituto técnico',b:{c:'bgr',t:'2027'}},
+    {t:'Inventor Autodesk',b:{c:'bgr',t:'2027'}},
+    {t:'Planner de Mantenimiento',b:{c:'bgr',t:'2027'}},
+    {t:'Master Tuberías / Piping',b:{c:'bgr',t:'2027+'}},
+    {t:'Generación Eléctrica',b:{c:'bgr',t:'2027+'}},
+  ],
+  dieta:[
+    {t:'Desayuno proteico todos los días',s:'Huevo + fruta + avena'},
+    {t:'Cena antes de las 8pm — porción pequeña'},
+    {t:'2 litros de agua al día'},
+    {t:'Reducir harinas blancas y azúcar'},
+    {t:'Almuerzo balanceado: proteína + verdura + carbohidrato'},
+    {t:'No comer después de las 9pm'},
+    {t:'Lonchera saludable para el trabajo'},
+  ],
+  salud:[
+    {t:'Revisión médica — Riñones',b:{c:'br',t:'Urgente'},s:'SIS o posta médica'},
+    {t:'Revisión médica — Oídos',b:{c:'br',t:'Urgente'}},
+    {t:'Curarme los hongos',b:{c:'bo',t:'Alta'},s:'Dermatolólogo / farmacia'},
+    {t:'Bajar de peso',b:{c:'by',t:'Media'},s:'Ejercicio + alimentación'},
+  ],
+  ideas:[
+    {t:'Servicios de mantenimiento industrial freelance'},
+    {t:'Tutorías SolidWorks / Power BI'},
+    {t:'Plantillas y dashboards Power BI'},
+    {t:'Canal YouTube / TikTok de ingeniería técnica'},
+    {t:'Consultoría en eficiencia de procesos'},
+  ],
+  brev_auto:[
+    {t:'Estudiar reglamento MTC',s:'Descarga gratis en web del MTC'},
+    {t:'Examen de reglas',b:{c:'bo',t:'~S/50'},s:'Meta: Dic 2026'},
+    {t:'Examen de manejo'},
+  ],
+  brev_moto:[
+    {t:'Examen médico certificado',b:{c:'br',t:'Primero'}},
+    {t:'Estudiar reglamento MTC para moto'},
+    {t:'Examen de reglas'},
+    {t:'Examen de manejo'},
+  ],
+};
+
+// ── DEUDAS ──
+const deudaGroups=[
+  {title:'📚 Curso planificación',items:[
+    {label:'Cuota 3/5 — 18/09/2026',monto:472.50,key:'d0'},
+    {label:'Cuota 4/5 — 18/10/2026',monto:472.50,key:'d1'},
+    {label:'Cuota 5/5 — 11/11/2026',monto:472.50,key:'d2'},
+  ]},
+  {title:'👥 Junta',items:[
+    {label:'Cuota 1/4 — 30/09/2026',monto:250,key:'d3'},
+    {label:'Cuota 2/4 — 30/10/2026',monto:250,key:'d4'},
+    {label:'Cuota 3/4 — 30/11/2026',monto:250,key:'d5'},
+    {label:'Cuota 4/4 — 30/12/2026',monto:250,key:'d6'},
+  ]},
+  {title:'📱 Celular (cuotas 4–15)',items:[
+    {label:'4/15 — 30/09/2026',monto:273,key:'d7'},{label:'5/15 — 15/10/2026',monto:273,key:'d8'},
+    {label:'6/15 — 30/10/2026',monto:273,key:'d9'},{label:'7/15 — 15/11/2026',monto:273,key:'d10'},
+    {label:'8/15 — 30/11/2026',monto:273,key:'d11'},{label:'9/15 — 15/12/2026',monto:273,key:'d12'},
+    {label:'10/15 — 30/12/2026',monto:273,key:'d13'},{label:'11/15 — 15/01/2027',monto:273,key:'d14'},
+    {label:'12/15 — 30/01/2027',monto:273,key:'d15'},{label:'13/15 — 15/02/2027',monto:273,key:'d16'},
+    {label:'14/15 — 28/02/2027',monto:273,key:'d17'},{label:'15/15 — 15/03/2027',monto:273,key:'d18'},
+  ]},
+  {title:'🏦 Caja Cusco (12 cuotas)',items:[
+    {label:'1/12 — 01/10/2026',monto:320,key:'d19'},{label:'2/12 — 01/11/2026',monto:320,key:'d20'},
+    {label:'3/12 — 01/12/2026',monto:320,key:'d21'},{label:'4/12 — 01/01/2027',monto:320,key:'d22'},
+    {label:'5/12 — 01/02/2027',monto:320,key:'d23'},{label:'6/12 — 01/03/2027',monto:320,key:'d24'},
+    {label:'7/12 — 01/04/2027',monto:320,key:'d25'},{label:'8/12 — 01/05/2027',monto:320,key:'d26'},
+    {label:'9/12 — 01/06/2027',monto:320,key:'d27'},{label:'10/12 — 01/07/2027',monto:320,key:'d28'},
+    {label:'11/12 — 01/08/2027',monto:320,key:'d29'},{label:'12/12 — 01/09/2027',monto:320,key:'d30'},
+  ]},
+];
+
+function mkDeudas(){
+  const el=document.getElementById('deudas-content'); if(!el) return;
+  const data=load(); el.innerHTML='';
+  deudaGroups.forEach(g=>{
+    const card=document.createElement('div'); card.className='card';
+    card.innerHTML=`<div class="card-title">${g.title}</div>`;
+    g.items.forEach(item=>{
+      const paid=!!data[item.key];
+      const row=document.createElement('div');
+      row.className='check-item'+(paid?' done':'');
+      row.id='dr-'+item.key;
+      row.innerHTML=`<input type="checkbox" ${paid?'checked':''}
+        style="width:20px;height:20px;accent-color:var(--green);cursor:pointer;flex-shrink:0;margin-top:2px"
+        onchange="toggleDeuda('${item.key}',${item.monto},this)">
+        <label style="font-size:14px">${item.label}<span class="check-sub">S/ ${item.monto.toFixed(2)}</span></label>`;
+      card.appendChild(row);
+    });
+    el.appendChild(card);
+  });
+  updateDeudas();
+}
+
+function toggleDeuda(key,monto,cb){
+  const data=load(); data[key]=cb.checked; save(data);
+  const row=document.getElementById('dr-'+key);
+  if(row) row.classList.toggle('done',cb.checked);
+  updateDeudas();
+}
+
+function updateDeudas(){
+  const data=load(); let pagado=0,count=0;
+  deudaGroups.forEach(g=>g.items.forEach(it=>{if(data[it.key]){pagado+=it.monto;count++;}}));
+  const el1=document.getElementById('d-pagado'); if(el1) el1.textContent='S/ '+Math.round(pagado).toLocaleString('es-PE');
+  const el2=document.getElementById('d-cuotas'); if(el2) el2.textContent=count;
+  const el3=document.getElementById('d-pend'); if(el3) el3.textContent='S/ '+Math.round(9533-pagado).toLocaleString('es-PE');
+}
+
+// ── PRESUPUESTO ──
+function calcPresup(){
+  const v=id=>{const e=document.getElementById(id);return e?parseFloat(e.value)||0:0;};
+  const ing=v('p-sueldo')+v('p-tarjeta')+v('p-extra');
+  const gf=v('p-comida')+v('p-pasajes')+v('p-luz')+v('p-gas')+v('p-plan')+v('p-otros');
+  const d=v('p-curso')+v('p-junta')+v('p-cel')+v('p-caja');
+  const s=ing-gf-d;
+  const ti=document.getElementById('p-ti'); if(ti) ti.textContent='S/ '+ing.toLocaleString('es-PE');
+  const tg=document.getElementById('p-tg'); if(tg) tg.textContent='S/ '+gf.toLocaleString('es-PE');
+  const td=document.getElementById('p-td'); if(td) td.textContent='S/ '+d.toLocaleString('es-PE');
+  const sv=document.getElementById('saldo-val'); if(sv) sv.textContent='S/ '+s.toLocaleString('es-PE');
+  const sb=document.getElementById('saldo-box'); if(sb) sb.className='saldo '+(s>=0?'pos':'neg');
+  const data=load();
+  data.presup={sueldo:v('p-sueldo'),tarjeta:v('p-tarjeta'),extra:v('p-extra'),
+    comida:v('p-comida'),pasajes:v('p-pasajes'),luz:v('p-luz'),gas:v('p-gas'),
+    plan:v('p-plan'),otros:v('p-otros'),curso:v('p-curso'),junta:v('p-junta'),
+    cel:v('p-cel'),caja:v('p-caja')};
+  save(data);
+}
+
+function loadPresup(){
+  const data=load(); const p=data.presup||{};
+  const map={sueldo:1800,tarjeta:300,extra:0,comida:300,pasajes:300,luz:170,gas:40,plan:40,otros:0,curso:472,junta:250,cel:546,caja:320};
+  Object.entries(map).forEach(([k,def])=>{const e=document.getElementById('p-'+k);if(e) e.value=p[k]!==undefined?p[k]:def;});
+  calcPresup();
+}
+
+// ── COMPRAS ──
+const compras=[
+  {e:1,t:'Medias (½ docena)',prio:'Alta',costo:'S/ 30–50'},
+  {e:1,t:'Calzoncillos (½ docena)',prio:'Alta',costo:'S/ 40–70'},
+  {e:2,t:'Cortina para el cuarto',prio:'Alta',costo:'S/ 60–120'},
+  {e:2,t:'Sábanas',prio:'Alta',costo:'S/ 80–150'},
+  {e:2,t:'Almohadas',prio:'Alta',costo:'S/ 60–100'},
+  {e:2,t:'Mantenimiento PC (limpieza)',prio:'Alta',costo:'S/ 50–80'},
+  {e:3,t:'Edredón',prio:'Media',costo:'S/ 100–200'},
+  {e:3,t:'Mesa de estudio',prio:'Media',costo:'S/ 150–300'},
+  {e:3,t:'Silla de estudio',prio:'Media',costo:'S/ 100–250'},
+  {e:3,t:'Mueble centro TV',prio:'Media',costo:'S/ 200–400'},
+  {e:3,t:'Accesorios centro TV',prio:'Media',costo:'S/ 80–150'},
+  {e:3,t:'Adornos (cuadros, flores)',prio:'Baja',costo:'S/ 100–200'},
+  {e:3,t:'Repisas',prio:'Baja',costo:'S/ 80–160'},
+  {e:3,t:'Cambio de RAM',prio:'Media',costo:'S/ 150–300'},
+  {e:3,t:'Mueble para guardar ropa',prio:'Media',costo:'S/ 300–600'},
+  {e:4,t:'Nueva cama',prio:'Media',costo:'S/ 500–1,200'},
+  {e:4,t:'Nueva computadora',prio:'Media',costo:'S/ 1,500–3,000'},
+];
+const etapas=[
+  {e:1,label:'Etapa 1 — Sep 2026',col:'br',sub:'S/ 184 libre'},
+  {e:2,label:'Etapa 2 — Dic 2026',col:'bo',sub:'S/ 334 libre'},
+  {e:3,label:'Etapa 3 — Ene–Ago 2027',col:'by',sub:'~S/ 384/mes'},
+  {e:4,label:'Etapa 4 — Sep 2027+',col:'bg',sub:'S/ 1,250+ libre'},
+];
+
+function mkCompras(){
+  const el=document.getElementById('compras-content'); if(!el) return;
+  const data=load(); const saved=data['compras']||{};
+  el.innerHTML='';
+  etapas.forEach(et=>{
+    const card=document.createElement('div'); card.className='card';
+    card.innerHTML=`<div class="etapa-chip ${et.col}">${et.label} · ${et.sub}</div>`;
+    compras.filter(c=>c.e===et.e).forEach((c)=>{
+      const idx=compras.indexOf(c);
+      const id='compras-'+idx; const checked=!!saved[idx];
+      const pb=c.prio==='Alta'?'br':c.prio==='Media'?'by':'bg';
+      const row=document.createElement('div');
+      row.className='check-item'+(checked?' done':'');
+      row.id='r-'+id;
+      row.innerHTML=`<input type="checkbox" id="${id}" ${checked?'checked':''}
+        onchange="toggleCompra(${idx})" style="width:20px;height:20px;accent-color:var(--green);cursor:pointer;flex-shrink:0;margin-top:2px">
+        <label for="${id}" style="font-size:14px">${c.t}
+          <span class="badge ${pb}">${c.prio}</span>
+          <span class="check-sub">${c.costo}</span>
+        </label>`;
+      card.appendChild(row);
+    });
+    el.appendChild(card);
+  });
+  updateCompras();
+}
+
+function toggleCompra(idx){
+  const id='compras-'+idx; const cb=document.getElementById(id);
+  document.getElementById('r-'+id).classList.toggle('done',cb.checked);
+  const data=load(); if(!data.compras) data.compras={};
+  data.compras[idx]=cb.checked; save(data); updateCompras();
+}
+
+function updateCompras(){
+  const data=load(); const saved=data['compras']||{};
+  const done=Object.values(saved).filter(Boolean).length;
+  const el=document.getElementById('c-done'); if(el) el.textContent=done;
+}
+
+// ── DASHBOARD METAS ──
+function updateDashMetas(){
+  const data=load();
+  const cats=[
+    {label:'Tesina',key:'tesina',total:allLists.tesina.length},
+    {label:'Inglés',key:'ingles',total:allLists.ingles.length},
+    {label:'Cursos',key:'cursos',total:allLists.cursos.length},
+    {label:'Salud',key:'salud',total:allLists.salud.length},
+    {label:'Brevete auto',key:'brev_auto',total:allLists.brev_auto.length},
+    {label:'Brevete moto',key:'brev_moto',total:allLists.brev_moto.length},
+    {label:'Dieta',key:'dieta',total:allLists.dieta.length},
+  ];
+  let ta=0,da=0;
+  const wrap=document.getElementById('dash-metas'); if(!wrap) return;
+  wrap.innerHTML='';
+  cats.forEach(c=>{
+    const saved=data[c.key]||{};
+    const done=Object.values(saved).filter(Boolean).length;
+    ta+=c.total; da+=done;
+    const pct=Math.round(done/c.total*100);
+    const col=pct===100?'var(--green)':pct>50?'var(--accent)':'var(--orange)';
+    wrap.innerHTML+=`<div class="prog-wrap">
+      <div class="prog-label"><span>${c.label}</span><span>${done}/${c.total}</span></div>
+      <div class="prog-bar"><div class="prog-fill" style="width:${pct}%;background:${col}"></div></div>
+    </div>`;
+  });
+  const sp=document.getElementById('dash-meta-pct');
+  if(sp) sp.textContent=`${da} de ${ta} completados (${Math.round(da/ta*100)}%)`;
+}
+
+// ── SETUP PC ──
+const pcTorre=[
+  {key:'pc_cpu',name:'CPU',model:'AMD Ryzen 9 7900X',price:'S/ 1,400–1,550',monto:1475},
+  {key:'pc_gpu',name:'GPU',model:'NVIDIA RTX 4070 Super 12 GB',price:'S/ 2,400–2,700',monto:2550},
+  {key:'pc_ram',name:'RAM',model:'64 GB DDR5 5600 — Kingston Fury Beast',price:'S/ 550–700',monto:625},
+  {key:'pc_mb',name:'Placa madre',model:'ASUS Prime X670-P / Gigabyte X670 Aorus',price:'S/ 1,000–1,200',monto:1100},
+  {key:'pc_ssd1',name:'SSD principal',model:'Samsung 990 Pro 2 TB NVMe',price:'S/ 450–550',monto:500},
+  {key:'pc_ssd2',name:'SSD secundario',model:'WD Blue 2 TB NVMe',price:'S/ 280–380',monto:330},
+  {key:'pc_cooler',name:'Cooler',model:'Deepcool AK620 / Noctua NH-D15',price:'S/ 250–400',monto:325},
+  {key:'pc_psu',name:'Fuente',model:'Corsair RM850e 850W 80+ Gold',price:'S/ 380–480',monto:430},
+  {key:'pc_case',name:'Gabinete',model:'Lian Li Lancool 216 ATX',price:'S/ 350–450',monto:400},
+];
+const pcMonitor=[
+  {key:'pc_monitor',name:'Monitor',model:'Dell UltraSharp U4025QW 40" 5K2K Curved',price:'S/ 5,500–6,200',monto:5850},
+];
+const pcPerifericos=[
+  {key:'pc_kb',name:'Teclado',model:'Logitech MX Keys S',price:'S/ 390–420',monto:405},
+  {key:'pc_mouse',name:'Mouse',model:'Logitech MX Master 3S',price:'S/ 270–400',monto:335},
+  {key:'pc_headphones',name:'Audífonos',model:'Sony WH-1000XM5',price:'S/ 900–1,100',monto:1000},
+  {key:'pc_speakers',name:'Parlantes',model:'Logitech Z407 / Edifier R1280T',price:'S/ 300–450',monto:375},
+  {key:'pc_pad',name:'Mousepad XL',model:'Logitech Desk Mat Studio',price:'S/ 120–160',monto:140},
+  {key:'pc_cam',name:'Webcam',model:'Logitech Brio 500',price:'S/ 300–500',monto:400},
+  {key:'pc_arm',name:'Brazo monitor',model:'Ergotron LX',price:'S/ 350–550',monto:450},
+];
+const allPcItems=[...pcTorre,...pcMonitor,...pcPerifericos];
+const PC_TOTAL=15190;
+
+function mkPCItems(containerId,items){
+  const el=document.getElementById(containerId); if(!el) return;
+  const data=load(); el.innerHTML='';
+  items.forEach(item=>{
+    const checked=!!data[item.key];
+    const row=document.createElement('div');
+    row.className='pc-item-row'+(checked?' done':'');
+    row.id='pcr-'+item.key;
+    row.innerHTML=`
+      <div class="pc-item-info">
+        <div class="pc-item-name">${item.name}</div>
+        <div class="pc-item-model">${item.model}</div>
+        <div class="pc-item-price">${item.price}</div>
+      </div>
+      <input type="checkbox" class="pc-item-check" ${checked?'checked':''}
+        onchange="togglePC('${item.key}',${item.monto},this)">`;
+    el.appendChild(row);
+  });
+}
+
+function togglePC(key,monto,cb){
+  const data=load(); data[key]=cb.checked; save(data);
+  const row=document.getElementById('pcr-'+key);
+  if(row) row.classList.toggle('done',cb.checked);
+  updatePCMetrics();
+}
+
+function updatePCMetrics(){
+  const data=load(); let done=0;
+  allPcItems.forEach(it=>{if(data[it.key]) done+=it.monto;});
+  const el1=document.getElementById('pc-done-val'); if(el1) el1.textContent='S/ '+done.toLocaleString('es-PE');
+  const el2=document.getElementById('pc-pend-val'); if(el2) el2.textContent='S/ '+(PC_TOTAL-done).toLocaleString('es-PE');
+  updatePCAhorro();
+}
+
+function updatePCAhorro(){
+  const data=load();
+  const el=document.getElementById('pc-ahorro'); if(!el) return;
+  const ahorro=parseFloat(el.value)||0;
+  data.pc_ahorro=ahorro; save(data);
+  const pct=Math.min(Math.round(ahorro/PC_TOTAL*100),100);
+  const rest=Math.max(PC_TOTAL-ahorro,0);
+  const fill=document.getElementById('pc-prog-fill'); if(fill) fill.style.width=pct+'%';
+  const pe=document.getElementById('pc-prog-pct'); if(pe) pe.textContent=pct+'%';
+  const re=document.getElementById('pc-prog-rest'); if(re) re.textContent='Faltan S/ '+rest.toLocaleString('es-PE');
+  const ad=document.getElementById('pc-ahorro-disp'); if(ad) ad.textContent='S/ '+ahorro.toLocaleString('es-PE');
+}
+
+function savePCNotas(){
+  const el=document.getElementById('pc-notas'); if(!el) return;
+  const data=load(); data.pc_notas=el.value; save(data);
+}
+
+function loadPCSetup(){
+  const data=load();
+  const aEl=document.getElementById('pc-ahorro'); if(aEl) aEl.value=data.pc_ahorro||0;
+  const nEl=document.getElementById('pc-notas'); if(nEl) nEl.value=data.pc_notas||'';
+  mkPCItems('pc-torre-items',pcTorre);
+  mkPCItems('pc-monitor-items',pcMonitor);
+  mkPCItems('pc-periferico-items',pcPerifericos);
+  updatePCMetrics();
+}
+
+// ── IDEA ──
+function saveIdea(){
+  const el=document.getElementById('idea-txt'); if(!el) return;
+  const data=load(); data.idea=el.value; save(data);
+}
+
+// ── BACKUP ──
+function genExport(){
+  const data=load();
+  const out=JSON.stringify({version:'mivida2026-v1',fecha:new Date().toISOString(),datos:data},null,2);
+  const el=document.getElementById('export-area'); if(el) el.value=out;
+  return out;
+}
+function exportar(){
+  const out=genExport();
+  const blob=new Blob([out],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download='mivida2026_'+new Date().toISOString().split('T')[0]+'.json';
+  a.click(); URL.revokeObjectURL(url);
+  showToast('✅ Respaldo descargado');
+}
+function copiarExport(){
+  const out=genExport();
+  navigator.clipboard.writeText(out).then(()=>showToast('📋 Copiado'))
+  .catch(()=>{const el=document.getElementById('export-area');if(el){el.select();document.execCommand('copy');showToast('📋 Copiado');}});
+}
+function importar(){
+  const txt=document.getElementById('import-area').value.trim();
+  if(!txt){showToast('⚠️ Pega el respaldo primero');return;}
+  try{
+    const obj=JSON.parse(txt);
+    const datos=obj.datos||obj;
+    localStorage.setItem(SK,JSON.stringify(datos));
+    showToast('✅ Restaurado — recargando...');
+    setTimeout(()=>location.reload(),1200);
+  }catch(e){showToast('❌ JSON inválido');}
+}
+function importFile(input){
+  const file=input.files[0]; if(!file) return;
+  const r=new FileReader();
+  r.onload=e=>{document.getElementById('import-area').value=e.target.result;showToast('Archivo cargado — presiona Importar');};
+  r.readAsText(file);
+}
+function borrarTodo(){
+  if(!confirm('¿Seguro? Se borrará todo el progreso.')) return;
+  localStorage.removeItem(SK);
+  showToast('🗑️ Borrado — recargando...');
+  setTimeout(()=>location.reload(),1000);
+}
+
+// ── INIT ──
+(function init(){
+  Object.entries(allLists).forEach(([key,items])=>{
+    const map={tesina:'ch-tesina',ingles:'ch-ingles',cursos:'ch-cursos',
+      dieta:'ch-dieta',salud:'ch-salud',ideas:'ch-ideas',
+      brev_auto:'ch-brev-auto',brev_moto:'ch-brev-moto'};
+    if(map[key]) mkChecks(map[key],items,key);
+  });
+  mkDeudas();
+  mkCompras();
+  loadPresup();
+  loadPCSetup();
+  const data=load();
+  const ideaEl=document.getElementById('idea-txt'); if(ideaEl) ideaEl.value=data.idea||'';
+  updateDashMetas();
+})();
+</script>
+</body>
+</html>
