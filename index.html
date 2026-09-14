@@ -29,7 +29,8 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
 html,body{height:100%;overflow:hidden;overscroll-behavior:none}
 body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--text);font-size:15px;line-height:1.5}
-button{font-family:inherit;cursor:pointer;border:none;background:none;-webkit-user-select:none;user-select:none}
+button{font-family:inherit;cursor:pointer;border:none;background:none;-webkit-user-select:none;user-select:none;touch-action:manipulation}
+.bn-item,.tab-btn,.icon-btn,.drawer-item{touch-action:manipulation}
 input,textarea,select{font-family:inherit;font-size:15px}
 button,.bn-item,.tab-btn,.icon-btn,.drawer-item,.check-item label{transition:transform .12s ease,opacity .12s ease,background-color .15s ease}
 button:active,.bn-item:active,.tab-btn:active,.icon-btn:active,.drawer-item:active{transform:scale(.94);opacity:.75}
