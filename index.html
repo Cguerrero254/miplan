@@ -207,6 +207,7 @@ tr:last-child td{border-bottom:none}
 .sched-item__body{flex:1;font-size:12.5px}
 .sched-item__body small{display:block;color:var(--ink-500);font-size:10.5px;margin-top:1px}
 .sched-item.is-done .sched-item__body{text-decoration:line-through;color:var(--ink-300)}
+.sched-item.is-event{background:var(--brand-50);margin:0 -14px;padding:10px 14px;border-radius:var(--radius-sm);border-bottom:none}
 .cat-dot{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px;vertical-align:middle}
 .sched-ro-row{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--line-soft);font-size:12.5px}
 .sched-ro-row:last-child{border-bottom:none}
@@ -479,6 +480,7 @@ tr:last-child td{border-bottom:none}
         </div>
 
         <div id="hr-sub-seguimiento" class="subview is-active">
+          <div id="hr-sg-events-banner"></div>
           <div class="panel">
             <div class="panel__head"><div class="panel__title" id="hr-sg-day-title">Hoy</div><input type="date" id="hr-sg-date" onchange="Tracking.setDate(this.value)"></div>
             <div id="hr-sg-list"></div>
@@ -490,6 +492,7 @@ tr:last-child td{border-bottom:none}
           <div class="banner banner--info">Meta de sueño: <b>10 pm – 5 am (7 h diarias)</b>.</div>
           <div class="panel"><div class="tabbar" id="hr-pl-tabs"></div><div id="hr-pl-list"></div></div>
           <div class="panel"><div class="panel__head"><div class="panel__title">Distribución semanal planificada</div><div class="panel__note">horas por categoría</div></div><div id="hr-pl-dist"></div></div>
+          <div class="panel"><div class="panel__head"><div class="panel__title">Curso Ingenium — Planner de mantenimiento</div><div class="panel__note">26 sesiones · sept 2026 – ene 2027</div></div><div id="hr-pl-ingenium"></div></div>
         </div>
 
         <div id="hr-sub-constancia" class="subview">
@@ -628,7 +631,7 @@ const U = {
   monthName(ym) { const [y, m] = ym.split('-'); const names = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']; return names[+m - 1] + ' ' + y; },
   toast(msg) { const el = document.getElementById('snackbar'); el.textContent = msg; el.classList.add('is-shown'); clearTimeout(U._t); U._t = setTimeout(() => el.classList.remove('is-shown'), 2300); }
 };
-const PALETTE = ['#3E4C68', '#8792A6', '#A24238', '#B8873B', '#3F7A55', '#5B6B8C', '#7A5B4E'];
+const PALETTE = ['#3E4C68', '#8792A6', '#A24238', '#B8873B', '#3F7A55', '#5B6B8C', '#7A5B4E', '#6B5B7A'];
 const GASTO_CATS = { comida: 'Comida', pasajes: 'Pasajes', luz: 'Luz', gas: 'Gas', plan: 'Plan celular', deuda: 'Pago de deuda', compra: 'Compra', otros: 'Otros' };
 const INGRESO_CATS = { sueldo: 'Sueldo', tarjeta: 'Tarjeta alimentos', extra: 'Extra / bono', otro: 'Otro ingreso' };
 const CAT_COLOR_GOAL = { 'Académico': PALETTE[0], 'Idiomas': PALETTE[1], 'Cursos': PALETTE[2], 'Salud': PALETTE[3], 'Trámites': PALETTE[4], 'Emprendimiento': PALETTE[5] };
@@ -636,7 +639,7 @@ const CAT_SCHED = {
   sleep: { label: 'Sueño', color: PALETTE[0] }, routine: { label: 'Rutina diaria', color: PALETTE[1] },
   travel_work: { label: 'Trabajo / viaje', color: PALETTE[2] }, study: { label: 'Estudio', color: PALETTE[3] },
   exercise: { label: 'Ejercicio', color: PALETTE[4] }, entrepreneur: { label: 'Emprendimiento', color: PALETTE[5] },
-  personal: { label: 'Personal', color: PALETTE[6] },
+  personal: { label: 'Personal', color: PALETTE[6] }, curso_externo: { label: 'Curso externo', color: PALETTE[7] },
 };
 const WEEKDAYS = ['lun', 'mar', 'mie', 'jue', 'vie', 'sab', 'dom'];
 const WD_LABEL = { lun: 'Lunes', mar: 'Martes', mie: 'Miércoles', jue: 'Jueves', vie: 'Viernes', sab: 'Sábado', dom: 'Domingo' };
@@ -644,6 +647,12 @@ const JS_DAY_TO_KEY = ['dom', 'lun', 'mar', 'mie', 'jue', 'vie', 'sab'];
 
 function dur(start, end) { if (!end) return 0; const [h1, m1] = start.split(':').map(Number), [h2, m2] = end.split(':').map(Number); return (h2 * 60 + m2) - (h1 * 60 + m1); }
 function b(time, title, cat) { const [start, end] = time.includes('–') ? time.split('–') : [time, null]; return { time, title, cat, minutes: dur(start, end) }; }
+
+/* Eventos con fecha fija (no forman parte de la plantilla semanal recurrente).
+   Curso "Planner de Mantenimiento" — Ingenium: 26 sesiones puntuales, sept 2026 – ene 2027. */
+const INGENIUM_SESSIONS = ['2026-09-18', '2026-09-28', '2026-09-30', '2026-10-05', '2026-10-07', '2026-10-12', '2026-10-14', '2026-10-19', '2026-10-21', '2026-10-26', '2026-10-28', '2026-11-04', '2026-11-09', '2026-11-16', '2026-11-18', '2026-11-23', '2026-11-25', '2026-11-30', '2026-12-02', '2026-12-07', '2026-12-14', '2026-12-16', '2026-12-21', '2027-01-07', '2027-01-11', '2027-01-13'];
+const SPECIAL_EVENTS = {};
+INGENIUM_SESSIONS.forEach(iso => { SPECIAL_EVENTS[iso] = [b('19:30–21:30', 'Curso Ingenium — Planner de mantenimiento', 'curso_externo')]; });
 const SCHEDULE = {
   lun: { special: null, blocks: [b('5:00', 'Despertar', 'sleep'), b('5:10–5:40', 'Fuerza', 'exercise'), b('5:40–6:00', 'Ducha y desayuno', 'routine'), b('6:00–6:30', 'Viaje', 'travel_work'), b('7:30–18:00', 'Trabajo', 'travel_work'), b('18:00–19:30', 'Regreso', 'travel_work'), b('19:45–21:00', 'Tesina', 'study'), b('21:00–21:30', 'Inglés', 'study'), b('22:00', 'Dormir', 'sleep')] },
   mar: { special: null, blocks: [b('5:00', 'Despertar', 'sleep'), b('5:10–5:40', 'HIIT', 'exercise'), b('5:40–6:00', 'Ducha y desayuno', 'routine'), b('6:00–6:30', 'Viaje', 'travel_work'), b('7:30–18:00', 'Trabajo', 'travel_work'), b('18:00–19:30', 'Regreso', 'travel_work'), b('19:45–21:00', 'Curso técnico', 'study'), b('21:00–21:30', 'Emprender', 'entrepreneur'), b('22:00', 'Dormir', 'sleep')] },
@@ -1297,18 +1306,46 @@ const Purchases = {
    HORARIO — utilidades y módulos
    ========================================================================= */
 function weekdayKeyFor(dateISO) { const d = new Date(dateISO + 'T00:00:00'); return JS_DAY_TO_KEY[d.getDay()]; }
-function dayPct(dateISO) { const wd = weekdayKeyFor(dateISO); const blocks = SCHEDULE[wd].blocks; const rec = SCH.compliance[dateISO] || {}; const done = blocks.filter((_, i) => rec[i]).length; return blocks.length ? Math.round(done / blocks.length * 100) : 0; }
+function timeRangeMinutes(time) { if (!time || !time.includes('–')) return null; const [s, e] = time.split('–'); const [h1, m1] = s.split(':').map(Number), [h2, m2] = e.split(':').map(Number); return [h1 * 60 + m1, h2 * 60 + m2]; }
+function allBlocksFor(dateISO) {
+  const wd = weekdayKeyFor(dateISO);
+  const tpl = SCHEDULE[wd].blocks.map((bl, i) => Object.assign({}, bl, { key: String(i), isEvent: false }));
+  const evt = (SPECIAL_EVENTS[dateISO] || []).map((bl, j) => Object.assign({}, bl, { key: 'evt' + j, isEvent: true }));
+  return tpl.concat(evt);
+}
+function blockConflicts(dateISO) {
+  const blocks = allBlocksFor(dateISO), map = {};
+  blocks.forEach(a => {
+    const ra = timeRangeMinutes(a.time); if (!ra) return;
+    blocks.forEach(bx => {
+      if (a.key === bx.key && a.isEvent === bx.isEvent) return;
+      if (a.isEvent === bx.isEvent) return; // solo interesa el cruce plantilla ↔ evento puntual
+      const rb = timeRangeMinutes(bx.time); if (!rb) return;
+      if (ra[0] < rb[1] && rb[0] < ra[1]) { (map[a.key] = map[a.key] || []).push(bx.title); }
+    });
+  });
+  return map;
+}
+function dayPct(dateISO) { const blocks = allBlocksFor(dateISO); const rec = SCH.compliance[dateISO] || {}; const done = blocks.filter(bl => rec[bl.key]).length; return blocks.length ? Math.round(done / blocks.length * 100) : 0; }
 
 const Tracking = {
   currentDate: U.todayISO(),
   setDate(v) { this.currentDate = v || U.todayISO(); this.render(); },
-  toggle(i) { const rec = SCH.compliance[this.currentDate] = SCH.compliance[this.currentDate] || {}; rec[i] = !rec[i]; Store.save(); this.render(); Sidebar.renderPulse(); },
+  toggle(key) { const rec = SCH.compliance[this.currentDate] = SCH.compliance[this.currentDate] || {}; rec[key] = !rec[key]; Store.save(); this.render(); Sidebar.renderPulse(); },
   render() {
     document.getElementById('hr-sg-date').value = this.currentDate;
     const wd = weekdayKeyFor(this.currentDate); const day = SCHEDULE[wd]; const isToday = this.currentDate === U.todayISO();
     document.getElementById('hr-sg-day-title').textContent = WD_LABEL[wd] + (isToday ? ' · hoy' : '') + (day.special ? ' · ' + day.special : '');
     const rec = SCH.compliance[this.currentDate] || {};
-    document.getElementById('hr-sg-list').innerHTML = day.blocks.map((bl, i) => `<div class="sched-item ${rec[i] ? 'is-done' : ''}"><input type="checkbox" ${rec[i] ? 'checked' : ''} onchange="Tracking.toggle(${i})"><div class="sched-item__time">${bl.time}</div><div class="sched-item__body"><span class="cat-dot" style="background:${CAT_SCHED[bl.cat].color}"></span>${bl.title}<small>${CAT_SCHED[bl.cat].label}</small></div></div>`).join('');
+    const blocks = allBlocksFor(this.currentDate);
+    const conflicts = blockConflicts(this.currentDate);
+    const hasEvent = blocks.some(bl => bl.isEvent);
+    document.getElementById('hr-sg-events-banner').innerHTML = hasEvent ? `<div class="banner banner--info">Hoy tienes <b>clase de Ingenium — Planner de mantenimiento</b> (19:30–21:30). Las actividades marcadas con "cruza con" abajo chocan con la clase solo este día.</div>` : '';
+    document.getElementById('hr-sg-list').innerHTML = blocks.map(bl => {
+      const conf = conflicts[bl.key];
+      const confPill = conf ? `<span class="pill pill--warn" style="margin-left:6px">cruza con ${conf.join(', ')}</span>` : '';
+      return `<div class="sched-item ${rec[bl.key] ? 'is-done' : ''} ${bl.isEvent ? 'is-event' : ''}"><input type="checkbox" ${rec[bl.key] ? 'checked' : ''} onchange="Tracking.toggle('${bl.key}')"><div class="sched-item__time">${bl.time}</div><div class="sched-item__body"><span class="cat-dot" style="background:${CAT_SCHED[bl.cat].color}"></span>${bl.title}<small>${CAT_SCHED[bl.cat].label}</small>${confPill}</div></div>`;
+    }).join('');
     const pct = dayPct(this.currentDate);
     document.getElementById('hr-sg-balance-val').textContent = pct + '%';
     document.getElementById('hr-sg-balance').className = 'balance-box ' + (pct >= 80 ? 'is-pos' : pct >= 40 ? 'is-warn' : 'is-neg');
@@ -1325,6 +1362,20 @@ const Template = {
     Object.values(SCHEDULE).forEach(d => d.blocks.forEach(bl => totals[bl.cat] += bl.minutes));
     const maxV = Math.max(...Object.values(totals), 1);
     document.getElementById('hr-pl-dist').innerHTML = Object.entries(CAT_SCHED).map(([k, meta]) => { const hours = (totals[k] / 60).toFixed(1); const pct = totals[k] / maxV * 100; return `<div class="hbar-row"><div class="hbar-row__lbl">${meta.label}</div><div class="hbar-track"><div class="hbar-fill" style="width:${pct}%;background:${meta.color}"></div></div><div class="hbar-row__val">${hours} h</div></div>`; }).join('');
+    IngeniumPanel.render();
+  }
+};
+const IngeniumPanel = {
+  render() {
+    const today = U.todayISO();
+    document.getElementById('hr-pl-ingenium').innerHTML = INGENIUM_SESSIONS.map(iso => {
+      const wd = weekdayKeyFor(iso);
+      const evt = SPECIAL_EVENTS[iso][0];
+      const conf = (blockConflicts(iso)['evt0']) || [];
+      const isPast = iso < today;
+      const statusPill = conf.length ? `<span class="pill pill--warn">cruza con ${conf.join(', ')}</span>` : `<span class="pill pill--pos">sin cruce</span>`;
+      return `<div class="sched-ro-row" style="${isPast ? 'opacity:.45' : ''}"><span class="t">${U.fmtDate(iso)}</span><span style="flex:1"><span class="cat-dot" style="background:${CAT_SCHED.curso_externo.color}"></span>${WD_LABEL[wd]} · ${evt.time} ${statusPill}</span><button class="btn btn--flat btn--sm" onclick="HorTab.go('seguimiento');Tracking.setDate('${iso}')">Ver día</button></div>`;
+    }).join('');
   }
 };
 const Analytics = {
@@ -1342,7 +1393,7 @@ const Analytics = {
     document.getElementById('hr-cn-weekday').innerHTML = WEEKDAYS.map((k, i) => `<div class="hbar-row"><div class="hbar-row__lbl">${WD_LABEL[k]}</div><div class="hbar-track"><div class="hbar-fill" style="width:${wdAvg[i]}%;background:${wdAvg[i] >= 70 ? 'var(--pos)' : wdAvg[i] >= 40 ? 'var(--warn)' : 'var(--neg)'}"></div></div><div class="hbar-row__val">${wdCounts[k] ? wdAvg[i] + '%' : '—'}</div></div>`).join('');
     const catDone = {}, catTotal = {}; Object.keys(CAT_SCHED).forEach(c => { catDone[c] = 0; catTotal[c] = 0; });
     let d = new Date();
-    for (let i = 0; i < 30; i++) { const iso = U.toISO(d); const wd = weekdayKeyFor(iso); const rec = SCH.compliance[iso] || null; SCHEDULE[wd].blocks.forEach((bl, idx) => { if (bl.minutes <= 0) return; catTotal[bl.cat] += bl.minutes; if (rec && rec[idx]) catDone[bl.cat] += bl.minutes; }); d.setDate(d.getDate() - 1); }
+    for (let i = 0; i < 30; i++) { const iso = U.toISO(d); const rec = SCH.compliance[iso] || null; allBlocksFor(iso).forEach(bl => { if (bl.minutes <= 0) return; catTotal[bl.cat] += bl.minutes; if (rec && rec[bl.key]) catDone[bl.cat] += bl.minutes; }); d.setDate(d.getDate() - 1); }
     document.getElementById('hr-cn-cat').innerHTML = Object.entries(CAT_SCHED).map(([k, meta]) => { const pct = catTotal[k] ? Math.round(catDone[k] / catTotal[k] * 100) : 0; return `<div class="hbar-row"><div class="hbar-row__lbl">${meta.label}</div><div class="hbar-track"><div class="hbar-fill" style="width:${pct}%;background:${meta.color}"></div></div><div class="hbar-row__val">${pct}%</div></div>`; }).join('');
     const now = new Date();
     document.getElementById('hr-cn-cal-note').textContent = now.toLocaleDateString('es-PE', { month: 'long', year: 'numeric' });
@@ -1352,9 +1403,11 @@ const Analytics = {
     for (let day = 1; day <= daysInMonth; day++) {
       const dt = new Date(now.getFullYear(), now.getMonth(), day); const iso = U.toISO(dt); const isFuture = dt > now;
       const pct = isFuture ? null : (SCH.compliance[iso] ? dayPct(iso) : 0); const isToday = iso === U.todayISO();
+      const hasEvent = !!SPECIAL_EVENTS[iso];
       let bg = 'var(--line-soft)', color = 'var(--ink-300)';
       if (pct !== null) { if (pct >= 80) { bg = 'var(--pos)'; color = '#fff'; } else if (pct >= 50) { bg = '#CFE3D5'; color = 'var(--pos)'; } else if (pct > 0) { bg = 'var(--warn-50)'; color = 'var(--warn)'; } else if (SCH.compliance[iso]) { bg = 'var(--neg-50)'; color = 'var(--neg)'; } }
-      cells += `<div class="cal__cell ${isToday ? 'is-today' : ''}" style="background:${bg};color:${color}">${day}</div>`;
+      const border = hasEvent ? `box-shadow:inset 0 0 0 2px ${CAT_SCHED.curso_externo.color};` : '';
+      cells += `<div class="cal__cell ${isToday ? 'is-today' : ''}" style="background:${bg};color:${color};${border}" title="${hasEvent ? 'Clase Ingenium' : ''}">${day}</div>`;
     }
     document.getElementById('hr-cn-cal').innerHTML = cells;
   }
